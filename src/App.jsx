@@ -1,44 +1,29 @@
 import { useState } from 'react'
+import confetti from 'canvas-confetti'
+import { Square } from './components/Square.jsx'
+import { TURNS } from './constant.js'
+import { checkWinnerFrom, checkEndGame } from './logic/board.js'
+import { WinnerModal } from './components/WinnerModal.jsx'
 import './App.css'
-
-
-const TURNS ={
-    X: '×',
-    O: 'o'
-}
-
-console.log(TURNS)
-
-const Square = ({ children, isSelected, updateBoard, index }) => {
-    // mostramos visualmente en css el turno del jugador
-    const className = `square ${isSelected ? 'is-selected' : ''}`
-
-    const handleClick = (index) => {
-        updateBoard()
-    }
-
-    return (
-        <div 
-            onClick={handleClick}
-            className={className}
-        >
-            {children}
-        </div>
-    )
-}
-
-
-
 
 function App() {
     const [board, setBoard] = useState(Array(9).fill(null))
     const [turn, setTurn] = useState(TURNS.X)
+    // null es que no hay ganador, false es que hay un empate
+    const [winner, setWinner] = useState(null)
+
+    const resetGame = () => {
+        setBoard(Array(9).fill(null))
+        setTurn(TURNS.X)
+        setWinner(null)
+    }
+
 
     // funcion que se encarga de actualizar el estado, los turnos y quien es ganador o no
     const updateBoard = (index) => {
         // si ya se hizo click en un cuadro 
         // evitamos que se sobreescriba y no hace nada
-        if(board[index]) return
+        if(board[index] || winner) return
         
         // actualizamos el tablero
         const newBoard = [...board]
@@ -48,23 +33,30 @@ function App() {
         //cada vez que hacemos click en un cuadro cambiamos el turno
         const newTurn = turn === TURNS.X ? TURNS.O : TURNS.X
         setTurn(newTurn)
+        // revisar si hay ganador
+        const newWinner = checkWinnerFrom(newBoard)
+        if (newWinner) {
+            confetti()
+            setWinner(newWinner)
+        } else if (checkEndGame(newBoard)) {
+            setWinner(false) // empate
+        }
     }
 
     return (
         <main className="board">
-            <h1>Ta Te Ti</h1>
+            <h1>Tic-Tac-Toe</h1>
+            <button onClick={resetGame}>Reset del juego</button>
             <section className="game">
                 { //renderizamos los square dentro del tablero
-                    board.map((index) => {
+                    board.map((square, index) => {
                         return (
                             <Square 
                                 index={index}
                                 key={index}
                                 updateBoard={updateBoard}
                             >
-                                <span className="cell__content">
-                                    {board[index]}
-                                </span>
+                                {square}
                             </Square>
                         )
                     })
@@ -78,6 +70,7 @@ function App() {
                     {TURNS.O}
                 </Square>
             </section>
+                <WinnerModal resetGame={resetGame} winner={winner} />
         </main>
     )
 }
