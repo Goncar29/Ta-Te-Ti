@@ -4,6 +4,7 @@ import { Square } from './components/Square.jsx'
 import { TURNS } from './constant.js'
 import { checkWinnerFrom, checkEndGame } from './logic/board.js'
 import { WinnerModal } from './components/WinnerModal.jsx'
+import { Tablero } from './components/Tablero.jsx'
 import './App.css'
 
 function App() {
@@ -47,21 +48,11 @@ function App() {
         <main className="board">
             <h1>Tic-Tac-Toe</h1>
             <button onClick={resetGame}>Reset del juego</button>
+            
             <section className="game">
-                { //renderizamos los square dentro del tablero
-                    board.map((square, index) => {
-                        return (
-                            <Square 
-                                index={index}
-                                key={index}
-                                updateBoard={updateBoard}
-                            >
-                                {square}
-                            </Square>
-                        )
-                    })
-                }
+                <Tablero board={board} updateBoard={updateBoard} />
             </section>
+            
             <section className="turn">
                 <Square isSelected={turn === TURNS.X}>
                     {TURNS.X}
@@ -70,7 +61,9 @@ function App() {
                     {TURNS.O}
                 </Square>
             </section>
-                <WinnerModal resetGame={resetGame} winner={winner} />
+
+            <WinnerModal resetGame={resetGame} winner={winner} />
+        
         </main>
     )
 }
