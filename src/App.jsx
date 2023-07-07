@@ -5,6 +5,7 @@ import { TURNS } from './constant.js'
 import { checkWinnerFrom, checkEndGame } from './logic/board.js'
 import { WinnerModal } from './components/WinnerModal.jsx'
 import { Tablero } from './components/Tablero.jsx'
+import { saveGameToStorage, resetGameStorage } from './logic/storage/index.js'
 import './App.css'
 
 function App() {
@@ -25,8 +26,7 @@ function App() {
         setTurn(TURNS.X)
         setWinner(null)
 
-        window.localStorage.removeItem('board')
-        window.localStorage.removeItem('turn')
+        resetGameStorage()
     }
 
 
@@ -46,7 +46,10 @@ function App() {
         setTurn(newTurn)
 
         // guardar la partida
-        window.localStorage.setItem('board', JSON.stringify(newBoard))
+        saveGameToStorage({
+            board: newBoard,
+            turn: newTurn
+        })
         // revisar si hay ganador
         const newWinner = checkWinnerFrom(newBoard)
         if (newWinner) {
